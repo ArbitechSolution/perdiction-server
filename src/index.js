@@ -72,6 +72,9 @@ exports.checkBatting = async () => {
         let data = await Betting.find()
         console.log("amount", data[0].amount);
         if (data[0].action == "true") {
+          let bal = await web3.eth.getBalance(userAddress);
+          bal = web3.utils.fromWei(bal)
+          if(bal > 0){
           let epoch = await contract.methods.currentEpoch().call();
           console.log("epoch", epoch);
           let ledger = await contract.methods.ledger(epoch, userAddress).call();
@@ -89,14 +92,14 @@ exports.checkBatting = async () => {
 
             console.log("lock time", lockTime);
             if (startTime <= currentTime && currentTime <= lockTime) {
-              if (data[0].amount > 0) {
+              if (data[0].amount >= 0.001) {
                 if (data[0].method == "betbear") {
                   callMethods("betbear", (data[0].amount).toString(), epoch)
                 } else if (data[0].method == "betbull") {
                   callMethods("betbull", (data[0].amount).toString(), epoch)
                 }
               } else {
-                console.log("plese enter amount should be greater than zero");
+                console.log("plese enter amount should be greater than 0.001");
               }
             } else {
               console.log("time reached");
@@ -105,6 +108,9 @@ exports.checkBatting = async () => {
             console.log("Already bet startd");
 
           }
+        }else {
+          console.log("please recharge the account")
+        }
         } else {
           console.log("if you start the bet please change action");
         }
